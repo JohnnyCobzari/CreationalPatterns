@@ -4,7 +4,7 @@ public class Pasta
 {
     public string Type { get; set; } = "";
     public string Sauce { get; set; } = "";
-    public int CookingTime { get; set; } // in minutes
+    public int CookingTime { get; set; } 
 
     public void Show()
     {
