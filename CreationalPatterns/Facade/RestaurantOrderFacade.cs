@@ -113,6 +113,32 @@ namespace CreationalPatterns.Facade
                 .ToList();
         }
 
+        /// <summary>
+        /// Displays the drink menu.
+        /// </summary>
+        public void ShowDrinkMenu()
+        {
+            Console.WriteLine("\n🥤 SELECT YOUR DRINK:");
+            Console.WriteLine("1. Sparkling Water - $2.50");
+            Console.WriteLine("2. Italian Soda - $3.50");
+            Console.WriteLine("3. House Wine - $8.00");
+            Console.WriteLine("4. Espresso - $3.00");
+            Console.WriteLine("5. Lemonade - $2.99");
+        }
+
+        /// <summary>
+        /// Displays the dessert menu.
+        /// </summary>
+        public void ShowDessertMenu()
+        {
+            Console.WriteLine("\n🍰 SELECT YOUR DESSERT:");
+            Console.WriteLine("1. Tiramisu - $6.99");
+            Console.WriteLine("2. Gelato - $5.50");
+            Console.WriteLine("3. Panna Cotta - $6.50");
+            Console.WriteLine("4. Cannoli - $5.99");
+            Console.WriteLine("5. Chocolate Lava Cake - $7.50");
+        }
+
         public void DisplayOrderSummary(Order order)
         {
             Thread.Sleep(800);

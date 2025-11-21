@@ -90,6 +90,25 @@ class Program
 
     static void OrderComboMeal(RestaurantOrderFacade facade)
     {
+        var combo = CreateComboMeal(facade);
+
+        if (combo != null)
+        {
+            // Display combo summary
+            Thread.Sleep(800);
+            Console.WriteLine("\n═══════════════════════════════════════════════");
+            Console.WriteLine("           YOUR COMBO MEAL");
+            Console.WriteLine("═══════════════════════════════════════════════");
+            combo.Display();
+            Console.WriteLine("═══════════════════════════════════════════════");
+        }
+    }
+
+    /// <summary>
+    /// Helper method to create a combo meal (reusable by both OrderComboMeal and OrderComplexOrder).
+    /// </summary>
+    static ComboMeal? CreateComboMeal(RestaurantOrderFacade facade)
+    {
         Console.WriteLine("\n🎁 COMBO MEAL OPTIONS:");
         Console.WriteLine("1. Quick Lunch Combo (10% off) - Pasta + Drink");
         Console.WriteLine("2. Classic Dinner Combo (15% off) - Pasta + Drink + Dessert");
@@ -109,7 +128,7 @@ class Program
         if (order == null)
         {
             Console.WriteLine("❌ Invalid choice. Order canceled.");
-            return;
+            return null;
         }
 
         // Add toppings
@@ -125,40 +144,24 @@ class Program
         // Add pasta to combo
         combo.AddItem(new PastaItem(order));
 
-        // Order drink
-        Console.WriteLine("\n🥤 SELECT YOUR DRINK:");
-        Console.WriteLine("1. Sparkling Water - $2.50");
-        Console.WriteLine("2. Italian Soda - $3.50");
-        Console.WriteLine("3. House Wine - $8.00");
-        Console.WriteLine("4. Espresso - $3.00");
-        Console.WriteLine("5. Lemonade - $2.99");
+        // Order drink using Facadey
+        facade.ShowDrinkMenu();
         Console.Write("Select drink (1-5): ");
         string? drinkChoice = Console.ReadLine();
         int drinkNum = int.TryParse(drinkChoice, out int d) ? d : 0;
         combo.AddItem(DrinkItem.CreateDrink(drinkNum));
 
-        // Order dessert (for dinner and deluxe combos)
+        // Order dessert (for dinner and deluxe combos) using Facade
         if (comboType >= 2)
         {
-            Console.WriteLine("\n🍰 SELECT YOUR DESSERT:");
-            Console.WriteLine("1. Tiramisu - $6.99");
-            Console.WriteLine("2. Gelato - $5.50");
-            Console.WriteLine("3. Panna Cotta - $6.50");
-            Console.WriteLine("4. Cannoli - $5.99");
-            Console.WriteLine("5. Chocolate Lava Cake - $7.50");
+            facade.ShowDessertMenu();
             Console.Write("Select dessert (1-5): ");
             string? dessertChoice = Console.ReadLine();
             int dessertNum = int.TryParse(dessertChoice, out int des) ? des : 0;
             combo.AddItem(DessertItem.CreateDessert(dessertNum));
         }
 
-        // Display combo summary
-        Thread.Sleep(800);
-        Console.WriteLine("\n═══════════════════════════════════════════════");
-        Console.WriteLine("           YOUR COMBO MEAL");
-        Console.WriteLine("═══════════════════════════════════════════════");
-        combo.Display();
-        Console.WriteLine("═══════════════════════════════════════════════");
+        return combo;
     }
 
     /// <summary>
@@ -175,6 +178,7 @@ class Program
             Console.WriteLine("1. Add Pasta");
             Console.WriteLine("2. Add Drink");
             Console.WriteLine("3. Add Dessert");
+            Console.WriteLine("4. Add Combo Meal");
             Console.WriteLine("0. Finish order");
             Console.Write("Your choice: ");
             string? itemChoice = Console.ReadLine();
@@ -203,13 +207,8 @@ class Program
                     break;
 
                 case "2":
-                    // Add drink
-                    Console.WriteLine("\n🥤 SELECT DRINK:");
-                    Console.WriteLine("1. Sparkling Water - $2.50");
-                    Console.WriteLine("2. Italian Soda - $3.50");
-                    Console.WriteLine("3. House Wine - $8.00");
-                    Console.WriteLine("4. Espresso - $3.00");
-                    Console.WriteLine("5. Lemonade - $2.99");
+                    // Add drink using Facade
+                    facade.ShowDrinkMenu();
                     Console.Write("Select (1-5): ");
                     string? drinkChoice = Console.ReadLine();
                     int drinkNum = int.TryParse(drinkChoice, out int d) ? d : 0;
@@ -218,18 +217,23 @@ class Program
                     break;
 
                 case "3":
-                    // Add dessert
-                    Console.WriteLine("\n🍰 SELECT DESSERT:");
-                    Console.WriteLine("1. Tiramisu - $6.99");
-                    Console.WriteLine("2. Gelato - $5.50");
-                    Console.WriteLine("3. Panna Cotta - $6.50");
-                    Console.WriteLine("4. Cannoli - $5.99");
-                    Console.WriteLine("5. Chocolate Lava Cake - $7.50");
+                    // Add dessert using Facade
+                    facade.ShowDessertMenu();
                     Console.Write("Select (1-5): ");
                     string? dessertChoice = Console.ReadLine();
                     int dessertNum = int.TryParse(dessertChoice, out int des) ? des : 0;
                     complexOrder.AddItem(DessertItem.CreateDessert(dessertNum));
                     Console.WriteLine("✅ Dessert added to order!");
+                    break;
+
+                case "4":
+                    // Add combo meal (reuses CreateComboMeal helper method)
+                    var comboMeal = CreateComboMeal(facade);
+                    if (comboMeal != null)
+                    {
+                        complexOrder.AddItem(comboMeal);
+                        Console.WriteLine($"✅ {comboMeal.GetName()} added to order!");
+                    }
                     break;
 
                 case "0":
