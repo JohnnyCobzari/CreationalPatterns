@@ -30,7 +30,8 @@ class Program
         Console.WriteLine("1. Single pasta dish");
         Console.WriteLine("2. Combo meal (Pasta + Drink + Dessert with discount!)");
         Console.WriteLine("3. Complex order (Multiple items)");
-        Console.Write("\nYour choice (1-3): ");
+        Console.WriteLine("4. 🎓 DEMO: Behavioral Design Patterns (Strategy, State, Observer)");
+        Console.Write("\nYour choice (1-4): ");
         string? orderType = Console.ReadLine();
 
         if (orderType == "1")
@@ -47,6 +48,11 @@ class Program
         {
             // Complex order (Composite Pattern)
             OrderComplexOrder(restaurantFacade);
+        }
+        else if (orderType == "4")
+        {
+            // Behavioral Patterns Demo
+            DemoBehavioralPatterns(restaurantFacade);
         }
         else
         {
@@ -256,5 +262,61 @@ class Program
         {
             Console.WriteLine("\n❌ No items in order.");
         }
+    }
+
+    /// <summary>
+    /// Demonstrates all three behavioral design patterns in action
+    /// </summary>
+    static void DemoBehavioralPatterns(RestaurantOrderFacade facade)
+    {
+        Console.WriteLine("\n╔════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                                                        ║");
+        Console.WriteLine("║         🎓 BEHAVIORAL PATTERNS DEMONSTRATION           ║");
+        Console.WriteLine("║                                                        ║");
+        Console.WriteLine("║  This demo will showcase three behavioral patterns:   ║");
+        Console.WriteLine("║                                                        ║");
+        Console.WriteLine("║  1. Strategy Pattern - Choose payment method           ║");
+        Console.WriteLine("║  2. State Pattern - Track order lifecycle              ║");
+        Console.WriteLine("║  3. Observer Pattern - Real-time notifications         ║");
+        Console.WriteLine("║                                                        ║");
+        Console.WriteLine("╚════════════════════════════════════════════════════════╝");
+
+        Thread.Sleep(1000);
+
+        // Get customer name for notifications
+        Console.Write("\n👤 Enter your name for personalized notifications: ");
+        string? customerName = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(customerName))
+        {
+            customerName = "Guest";
+        }
+
+        // Create an order
+        facade.ShowMenu();
+        Console.Write("\nSelect your pasta (1-3): ");
+        string? pastaChoice = Console.ReadLine();
+
+        var order = facade.CreatePastaOrder(pastaChoice ?? "");
+        if (order == null)
+        {
+            Console.WriteLine("❌ Invalid choice. Demo canceled.");
+            return;
+        }
+
+        // Add toppings
+        facade.ShowToppingsMenu();
+        Console.Write("\nEnter topping numbers or 0 for none: ");
+        string? toppingsInput = Console.ReadLine();
+        var toppingChoices = facade.ParseToppingInput(toppingsInput);
+        if (toppingChoices.Count > 0)
+        {
+            facade.ApplyToppings(order, toppingChoices);
+        }
+
+        // Display order summary
+        facade.DisplayOrderSummary(order);
+
+        // Demonstrate all behavioral patterns
+        facade.DemonstrateBehavioralPatterns(order, customerName);
     }
 }

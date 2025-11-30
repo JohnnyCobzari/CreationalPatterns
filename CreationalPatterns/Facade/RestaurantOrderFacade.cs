@@ -2,6 +2,9 @@ using CreationalPatterns.Domain;
 using CreationalPatterns.Factory;
 using CreationalPatterns.Models;
 using CreationalPatterns.Decorator;
+using CreationalPatterns.Behavioral.Strategy;
+using CreationalPatterns.Behavioral.State;
+using CreationalPatterns.Behavioral.Observer;
 
 namespace CreationalPatterns.Facade
 {
@@ -155,6 +158,168 @@ namespace CreationalPatterns.Facade
             string? proteinChoice = Console.ReadLine();
             string proteinType = proteinChoice == "2" ? "Grilled Shrimp" : "Grilled Chicken";
             return new ProteinDecorator(pastaComponent, proteinType);
+        }
+
+        // ========== BEHAVIORAL PATTERNS INTEGRATION ==========
+
+        /// <summary>
+        /// Create an OrderSubject with all observers attached (Observer Pattern)
+        /// </summary>
+        public OrderSubject CreateOrderWithObservers(Order order, string customerName)
+        {
+            Console.WriteLine("\n🔧 Setting up order tracking system...");
+            Thread.Sleep(500);
+
+            // Create order context (State Pattern)
+            OrderContext orderContext = new OrderContext(order);
+
+            // Create subject (Observer Pattern)
+            OrderSubject orderSubject = new OrderSubject(orderContext);
+
+            Console.WriteLine("\n📡 Subscribing notification systems:");
+
+            // Attach observers
+            orderSubject.Attach(new KitchenDisplay());
+            Thread.Sleep(200);
+            orderSubject.Attach(new WaiterNotification("Maria"));
+            Thread.Sleep(200);
+            orderSubject.Attach(new CustomerNotification(customerName, "555-1234"));
+            Thread.Sleep(200);
+
+            Console.WriteLine("\n✅ Order tracking system ready!");
+
+            return orderSubject;
+        }
+
+        /// <summary>
+        /// Process the order through its complete lifecycle (State Pattern + Observer Pattern)
+        /// </summary>
+        public void ProcessOrderLifecycle(OrderSubject orderSubject)
+        {
+            Console.WriteLine("\n{'═',60}");
+            Console.WriteLine("  STARTING ORDER LIFECYCLE PROCESSING");
+            Console.WriteLine($"{'═',60}");
+
+            // Display state diagram
+            OrderContext.DisplayStateTransitionDiagram();
+
+            // Display current status
+            orderSubject.DisplayStatus();
+
+            // Display subscribed observers
+            orderSubject.DisplayObservers();
+
+            Console.WriteLine("\n\nPress ENTER to place the order...");
+            Console.ReadLine();
+
+            // State: Pending -> Preparing
+            orderSubject.PlaceOrder();
+
+            Console.WriteLine("\n\nPress ENTER to complete preparation...");
+            Console.ReadLine();
+
+            // State: Preparing -> Ready
+            orderSubject.CompletePreparation();
+
+            Console.WriteLine("\n\nPress ENTER to serve the order...");
+            Console.ReadLine();
+
+            // State: Ready -> Served
+            orderSubject.ServeOrder();
+
+            // Display current status
+            orderSubject.DisplayStatus();
+        }
+
+        /// <summary>
+        /// Handle payment using Strategy Pattern
+        /// </summary>
+        public bool ProcessPayment(decimal totalAmount)
+        {
+            Console.WriteLine("\n\n{'═',60}");
+            Console.WriteLine("  PAYMENT PROCESSING");
+            Console.WriteLine($"{'═',60}");
+
+            // Display payment options
+            PaymentContext.DisplayPaymentOptions();
+
+            Console.Write("\nSelect payment method (1-4): ");
+            string? paymentChoice = Console.ReadLine();
+
+            // Get strategy based on choice
+            IPaymentStrategy? paymentStrategy = PaymentContext.GetPaymentStrategyFromChoice(paymentChoice ?? "");
+
+            if (paymentStrategy == null)
+            {
+                Console.WriteLine("❌ Invalid payment method selected.");
+                return false;
+            }
+
+            // Create payment context and set strategy
+            PaymentContext paymentContext = new PaymentContext();
+            paymentContext.SetPaymentStrategy(paymentStrategy);
+
+            // Execute payment
+            return paymentContext.ExecutePayment(totalAmount);
+        }
+
+        /// <summary>
+        /// Complete the order after successful payment (State Pattern + Observer Pattern)
+        /// </summary>
+        public void FinalizeOrder(OrderSubject orderSubject)
+        {
+            Console.WriteLine("\n\nPress ENTER to finalize the order...");
+            Console.ReadLine();
+
+            // State: Served -> Completed
+            orderSubject.CompleteOrder();
+
+            // Display final status
+            orderSubject.DisplayStatus();
+
+            Console.WriteLine("\n🎉 Thank you for dining at Johnny's Pasta Palace!");
+            Console.WriteLine("   We hope to see you again soon!");
+        }
+
+        /// <summary>
+        /// Demonstrate all three behavioral patterns in a complete order flow
+        /// </summary>
+        public void DemonstrateBehavioralPatterns(Order order, string customerName)
+        {
+            Console.WriteLine("\n\n╔════════════════════════════════════════════════════════╗");
+            Console.WriteLine("║                                                        ║");
+            Console.WriteLine("║     BEHAVIORAL DESIGN PATTERNS DEMONSTRATION           ║");
+            Console.WriteLine("║                                                        ║");
+            Console.WriteLine("║  1. 🎯 Strategy Pattern - Payment Processing           ║");
+            Console.WriteLine("║  2. 🔄 State Pattern - Order Lifecycle Management      ║");
+            Console.WriteLine("║  3. 📢 Observer Pattern - Status Notifications         ║");
+            Console.WriteLine("║                                                        ║");
+            Console.WriteLine("╚════════════════════════════════════════════════════════╝");
+
+            Thread.Sleep(1000);
+
+            // Observer Pattern: Create order subject with observers
+            OrderSubject orderSubject = CreateOrderWithObservers(order, customerName);
+
+            // State Pattern + Observer Pattern: Process order lifecycle
+            ProcessOrderLifecycle(orderSubject);
+
+            // Get total amount
+            decimal totalAmount = order.GetTotalPrice();
+
+            // Strategy Pattern: Process payment
+            bool paymentSuccess = ProcessPayment(totalAmount);
+
+            if (paymentSuccess)
+            {
+                // Complete the order
+                FinalizeOrder(orderSubject);
+            }
+            else
+            {
+                Console.WriteLine("\n❌ Payment failed. Order cannot be completed.");
+                Console.WriteLine("   Please try again or contact staff for assistance.");
+            }
         }
     }
 }
